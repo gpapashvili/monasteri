@@ -20,16 +20,18 @@ POSTGRESQL_ENGINE = None
 def login_db(request):
     """Connect to database, required for pandas"""
     global POSTGRESQL_ENGINE
-    POSTGRESQL_ENGINE = create_db_engine(request.session.get('username'), #or DATABASES['default']['USER'],
-                                         request.session.get('password'), #or DATABASES['default']['PASSWORD'],
-                                         request.session.get('db_server') or DATABASES['default']['HOST'],
-                                         request.session.get('db_name') or DATABASES['default']['NAME'], )
+
     if isinstance(POSTGRESQL_ENGINE, Engine):
         request.session['db_connected'] = True
-        messages.success(request, "You are connected to the database!")
     else:
-        request.session['db_connected'] = False
-        messages.warning(request, POSTGRESQL_ENGINE)
+        POSTGRESQL_ENGINE = create_db_engine(request.session.get('username'),  # or DATABASES['default']['USER'],
+                                             request.session.get('password'),  # or DATABASES['default']['PASSWORD'],
+                                             request.session.get('db_server') or DATABASES['default']['HOST'],
+                                             request.session.get('db_name') or DATABASES['default']['NAME'], )
+        if not isinstance(POSTGRESQL_ENGINE, Engine):
+            request.session['db_connected'] = False
+            messages.warning(request, POSTGRESQL_ENGINE)
+            return redirect('login_user')
     return POSTGRESQL_ENGINE
 
 def login_user(request):
