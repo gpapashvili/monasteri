@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+<h1>კატალოგის მოდელები და ქვები</h1>
+<br/>
+
+<form method="POST" action="{% url 'catalog_custom' %}">
+	{% csrf_token %}
+
+    <div class="mb-3">
+    {{ cataloglistform.as_div }}
+    </div>
+    <br/>
+
+    <div class="mb-3 d-flex gap-2">
+        <input type="text" class="form-control" name="cat_model_id" value={{ model.model_id }}>
+        <input type="date" class="form-control" name="creation_date" value={{ model.creation_date|date:"Y-m-d" }}>
+        <input type="text" class="form-control" name="model_name" value={{ model.model_name }}>
+    </div>
+    <br/>
+    <div class="mb-3 d-flex gap-2">
+        {{ modelcategorylistform.model_category }}
+        {{ genderlistform.gender }}
+        <input type="number" class="form-control" name="peaces" value={{ model.peaces }} min=1, style="width: 100px">
+    </div>
+    <br/>
+    <div class="mb-3 d-flex gap-2">
+        <input type="text" class="form-control" name="cat_note" value={{ model.note }}>
+    </div>
+    <br/>
+    <img src="/media/{{ model.image_location }}" alt="model">
+    <br/>
+
+  <button type="submit" class="btn btn-secondary">არჩევა/დამატება</button>
+</form>
+
+<table class="table table-striped table-hover table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">მოდელი</th>
+      <th scope="col">ქვის სრული-სახელი</th>
+      <th scope="col">რაოდენობა</th>
+      <th scope="col">კომენტარი</th>
+    </tr>
+  </thead>
+  <tbody>
+
+{% for stone in stones %}
+    <tr>
+        <td>{{ stone.model_id }}</td>
+        <td>{{ stone.stone_full_name }}</td>
+        <td>{{ stone.quantity }} {{ stone.quantity_unit }}</td>
+        <td>{{ stone.note }}</td>
+    </tr>
+{% endfor %}
+
+{% endblock %}

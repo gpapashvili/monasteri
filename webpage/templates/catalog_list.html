@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Catalog List</h2>
+    <a href="{% url 'catalog_create' %}" class="btn btn-primary mb-3">Add New Entry</a>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Model ID</th>
+                <th>Model Name</th>
+                <th>Category</th>
+                <th>Gender</th>
+                <th>Pieces</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for catalog in catalogs %}
+            <tr>
+                <td>{{ catalog.model_id }}</td>
+                <td>{{ catalog.model_name }}</td>
+                <td>{{ catalog.model_category }}</td>
+                <td>{{ catalog.gender }}</td>
+                <td>{{ catalog.peaces }}</td>
+                <td>
+                    <a href="{% url 'catalog_update' catalog.model_id %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'catalog_delete' catalog.model_id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
