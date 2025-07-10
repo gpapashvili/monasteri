@@ -6,11 +6,12 @@
 <h1>კატალოგის მოდელები და ქვები</h1>
 <br/>
 
-<form method="POST" action="{% url 'catalog_custom' %}" id="catalogForm">
+<form method="POST" action="{% url 'catalog_custom' %}">
 	{% csrf_token %}
 
     <div class="mb-3 d-flex gap-2">
     {{ cataloglistform.as_div }}
+    <button type="submit" class="btn btn-secondary">გაფილტვრა</button>
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addModal">
         დამატება
@@ -45,16 +46,23 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addModalLabel">ახალი მოდელის დამატება</h5>
+            <h5 class="modal-title" id="addModalLabel">დამატების ფორმა</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-              <div class="mb-3 px-3">
-                <input type="text" class="form-control" name="new_model_id" placeholder="მოდელის ნომერი">
+              <div class="mb-3">
+                <input type="text" class="form-control" name="model_id" value={{ model.model_id }}>
+                <input type="text" class="form-control" name="model_name" value={{ model.model_name }}>
+                <input type="date" class="form-control" name="creation_date" value={{ model.creation_date|date:"Y-m-d" }}>
+                {{ modelcategorylistform.model_category }}
+                {{ genderlistform.gender }}
+                <input type="number" class="form-control" name="peaces" value={{ model.peaces }} min=1, style="width: 100px">
+                <input type="file" class="form-control" name="image_location" value={{ model.image_location }}>
+                <textarea class="form-control" name="note">{{ model.note }}</textarea>
               </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-secondary">OK</button>
+            <button type="submit" class="btn btn-secondary">დასტური</button>
           </div>
         </div>
       </div>
@@ -64,7 +72,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="changeModalLabel">{{ model.model_id }} მოდელზე მონაცემების შეცვლა</h5>
+            <h5 class="modal-title" id="changeModalLabel">{{ model.model_id }} მოდელზე მონაცემების შეცვლის ფორმა</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -75,20 +83,19 @@
                     <input type="date" class="form-control" name="na" value={{ model.creation_date|date:"Y-m-d" }} readonly>
                     <input type="text" class="form-control" name="na" value={{ model.model_category }} readonly>
                     <input type="text" class="form-control" name="na" value={{ model.gender }} readonly>
-                    <input type="number" class="form-control" name="na" value={{ model.peaces }} min=1 readonly>
+                    <input type="number" class="form-control" name="na" value={{ model.peaces }} min=1, style="width: 100px" readonly>
+                    <textarea class="form-control" name="na" readonly>{{ model.note }}</textarea>
                     <input type="text" class="form-control" name="na" value={{ model.image_location }} readonly>
-                    <textarea class="form-control" name="na" rows="5" readonly>{{ model.note }}</textarea>
                   </div>
                   <div class="mb-3">
                     <p>ახალი ინფორმაცია</p>
-                    <input type="hidden" class="form-control" name="model_id" value={{ model.model_id }}>
-                    <input type="text" class="form-control" name="model_name" placeholder="დასახელება" >
-                    <input type="date" class="form-control" name="creation_date" placeholder="შექმნის თარიღი">
+                    <input type="text" class="form-control" placeholder="დასახელება" name="model_name" value={{ model.model_name }}>
+                    <input type="date" class="form-control" placeholder="შექმნის თარიღი" name="creation_date" value={{ model.creation_date|date:"Y-m-d" }}>
                     {{ modelcategorylistform.model_category }}
                     {{ genderlistform.gender }}
-                    <input type="number" class="form-control" name="peaces" placeholder="კომპონენტების რაოდენობა" min=1>
-                    <input type="file" class="form-control" name="image_location" placeholder="სურათის სახელი" >
-                    <textarea class="form-control" name="note" placeholder="კომენტარი" rows="5"></textarea>
+                    <input type="number" class="form-control" placeholder="კომპონენტები" name="peaces" value={{ model.peaces }} min=1, style="width: 100px">
+                    <textarea class="form-control" placeholder="კომენტარი" name="note">{{ model.note }}</textarea>
+                    <input type="file" class="form-control" placeholder="ფაილის სახელი" name="image_location" value={{ model.image_location }}>
                   </div>
               </div>
               <center><img src="/media/{{ model.image_location }}" alt="model"></center>
@@ -108,7 +115,6 @@
       <th scope="col">ქვის სრული-სახელი</th>
       <th scope="col">რაოდენობა</th>
       <th scope="col">კომენტარი</th>
-      <td><a href="{% url 'test' model.model_id %}">Add Stone</a></td>
     </tr>
   </thead>
 
@@ -123,17 +129,5 @@
     {% endfor %}
   </tbody>
 </table>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const selectElement = document.querySelector('select[name="select_model_id"]');
-    if (selectElement) {
-        selectElement.addEventListener('change', function() {
-            document.getElementById('catalogForm').submit();
-        });
-    }
-});
-</script>
-
 
 {% endblock %}

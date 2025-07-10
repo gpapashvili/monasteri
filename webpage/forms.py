@@ -3,7 +3,7 @@ from .models import Catalog, Stones, ModelCategories, Genders
 
 
 class CatalogListForm(forms.Form):
-    model_id = forms.ModelChoiceField(
+    select_model_id = forms.ModelChoiceField(
         queryset=Catalog.objects.all(),
         empty_label="აირჩიე მოდელი",
         widget=forms.Select,

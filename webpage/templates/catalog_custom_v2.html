@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+<h1>კატალოგის მოდელები და ქვები</h1>
+<br/>
+
+<form method="POST" action="{% url 'catalog_custom' %}">
+	{% csrf_token %}
+
+    <div class="mb-3 d-flex gap-2">
+    {{ cataloglistform.as_div }}
+    <button type="submit" class="btn btn-secondary">გაფილტვრა</button>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        დამატება/შეცვლა
+    </button>
+    </div>
+    <br/>
+
+    <div class="mb-3">
+        <div class="mb-3 d-flex gap-2">
+            <input type="text" class="form-control" name="model_id" id="input1" value={{ model.model_id }}>
+            <input type="text" class="form-control" name="model_name" id="input2" value={{ model.model_name }}>
+            <input type="date" class="form-control" name="creation_date" id="input3" value={{ model.creation_date|date:"Y-m-d" }}>
+        </div>
+        <br/>
+        <div class="mb-3 d-flex gap-2">
+            {{ modelcategorylistform.model_category }}
+            {{ genderlistform.gender }}
+            <input type="number" class="form-control" name="peaces" id="input4" value={{ model.peaces }} min=1, style="width: 100px">
+        </div>
+        <br/>
+        <div class="mb-3 d-flex gap-2">
+            <textarea class="form-control" name="note" id="input5">{{ model.note }}</textarea>
+            <img src="/media/{{ model.image_location }}" alt="model" id="input6" >
+        </div>
+        <div class="mb-3 d-flex gap-2">
+            <input type="file" class="form-control" name="image_location" value={{ model.image_location }}>
+        </div>
+        <br/>
+        <script>
+        document.getElementById('input1').addEventListener('input', function() {
+            document.getElementById('output1').value = this.value; });
+        document.getElementById('input2').addEventListener('input', function() {
+            document.getElementById('output2').value = this.value; });
+        document.getElementById('input3').addEventListener('input', function() {
+            document.getElementById('output3').value = this.value; });
+        document.getElementById('input4').addEventListener('input', function() {
+            document.getElementById('output4').value = this.value; });
+        document.getElementById('input5').addEventListener('input', function() {
+            document.getElementById('output5').value = this.value; });
+        document.getElementById('input6').addEventListener('input', function() {
+            document.getElementById('output6').value = this.value; });
+        document.getElementById('input7').addEventListener('input', function() {
+            document.getElementById('output7').value = this.value; });
+        document.getElementById('input8').addEventListener('input', function() {
+            document.getElementById('output8').value = this.value; });
+        </script>
+    </div>
+ <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">დამატების/შეცვლის დადასტურება</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="mb-3 d-flex gap-2">
+                  <div class="mb-3">
+                    {% if cataloglistform %}
+                    <input type="text" class="form-control" name="model_id" value={{ model.model_id }}>
+                    <input type="text" class="form-control" name="model_name" value={{ model.model_name }}>
+                    <input type="date" class="form-control" name="creation_date" value={{ model.creation_date|date:"Y-m-d" }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.model_category }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.gender }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.model_id }}>
+                    <input type="number" class="form-control" name="peaces" value={{ model.peaces }} min=1, style="width: 100px">
+                    <textarea class="form-control" name="note">{{ model.note }}</textarea>
+                    <input type="file" class="form-control" name="image_location" value={{ model.image_location }}>
+                    {% endif %}
+                  </div>
+                  <div class="mb-3">
+                    <input type="text" class="form-control" name="model_id" id="output1" value={{ model.model_id }}>
+                    <input type="text" class="form-control" name="model_name" id="output2" value={{ model.model_name }}>
+                    <input type="date" class="form-control" name="creation_date" value={{ model.creation_date|date:"Y-m-d" }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.model_category }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.gender }}>
+                    <input type="text" class="form-control" name="model_id" value={{ model.model_id }}>
+                    <input type="number" class="form-control" name="peaces" value={{ model.peaces }} min=1, style="width: 100px">
+                    <textarea class="form-control" name="note">{{ model.note }}</textarea>
+                    <input type="file" class="form-control" name="image_location" value={{ model.image_location }}>
+                    <input type="text" class="form-control" name="output" id="outputField" value="">
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary">დასტური</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</form>
+
+<table class="table table-striped table-hover table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">მოდელი</th>
+      <th scope="col">ქვის სრული-სახელი</th>
+      <th scope="col">რაოდენობა</th>
+      <th scope="col">კომენტარი</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for stone in stones %}
+    <tr>
+        <td>{{ stone.model_id }}</td>
+        <td>{{ stone.stone_full_name }}</td>
+        <td>{{ stone.quantity }} {{ stone.quantity_unit }}</td>
+        <td>{{ stone.note }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

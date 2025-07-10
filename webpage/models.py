@@ -118,7 +118,7 @@ class Stones(models.Model):
     stone_name = models.ForeignKey(StoneNames, models.DO_NOTHING, db_column='stone_name')
     size = models.CharField(max_length=10)
     size_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='size_unit')
-    weight = models.DecimalField(max_digits=10, decimal_places=6)
+    weight = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
     weight_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='weight_unit', related_name='stones_weight_unit_set', blank=True, null=True)
     note = models.TextField(blank=True, null=True)
     django_id = models.AutoField(primary_key=True)

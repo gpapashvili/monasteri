@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.home, name='home'),
      path('login_user/', views.login_user, name='login_user'),
     path('logout_user/', views.logout_user, name='logout_user'),
-    path('admin/webpage/catalog/', views.admin_catalog, name='admin_catalog'),
+    path('juveladmin/webpage/catalog/', views.admin_catalog, name='admin_catalog'),
     path('catalog_custom/', views.catalog_custom, name='catalog_custom'),
     path('catalog/', views.catalog_list, name='catalog_list'),
     path('catalog/create/', views.catalog_create, name='catalog_create'),
@@ -17,7 +17,7 @@ urlpatterns = [
 
     # path('delete_record/<str:model_id>/<str:reference_name>', views.delete_record, name='delete_record'),
     # path('test_form/<str:model_id>/<str:stone_full_name>', views.test_form, name='test_form'),
-    # # path('test/', views.test, name='test'),
+    path('test/<str:model_id>', views.test, name='test'),
 ]
 
 if settings.DEBUG:

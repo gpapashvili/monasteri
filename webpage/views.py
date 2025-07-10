@@ -2,7 +2,7 @@ from PIL.ImageStat import Global
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .utils import pd_query, create_db_engine
+from .utils import pd_query, create_db_engine, insert_query
 from juvel.settings import DATABASES
 from sqlalchemy import Engine
 from django.template import loader
@@ -11,10 +11,6 @@ from django.views.generic import TemplateView, DetailView, ListView
 
 # Create your views here.
 
-# POSTGRESQL_ENGINE = create_db_engine( DATABASES['default']['USER'],
-#                                       DATABASES['default']['PASSWORD'],
-#                                       DATABASES['default']['HOST'],
-#                                       DATABASES['default']['NAME'], )
 POSTGRESQL_ENGINE = None
 
 def login_db(request):
@@ -82,7 +78,7 @@ def home(request):
 
 
 from .forms import CatalogListForm, ModelCategoryListForm, GenderListForm
-from .models import ModelCategories, Genders, Catalog
+from .models import Catalog
 def catalog_custom(request):
     # login to db in any view that uses pandas
     login_db(request)
@@ -93,12 +89,23 @@ def catalog_custom(request):
     genderlistform = GenderListForm()
 
     if request.method == 'POST':
-        # get selected value from selectbox
-        model_id = request.POST['model_id']
+        # Filter post dict from empty values
+        post_dict = {key:value for key, value in request.POST.dict().items() if value not in [None, '', 'None'] and key != 'na'}
+        print(post_dict)
+        if 'new_model_id' in post_dict:
+            stat = f'INSERT INTO catalog (model_id) VALUES ({post_dict["new_model_id"]})'
+            select_model_id = post_dict["new_model_id"]
+        elif 'select_model_id' in post_dict:
+            select_model_id = post_dict['select_model_id']
+        elif 'model_id' in post_dict:
+            select_model_id = post_dict['model_id']
+        else:
+            return redirect(request, 'catalog_custom.html')
+
         # get model and stones by model_id
-        stat = f"""SELECT * FROM catalog WHERE model_id = '{model_id}'"""
+        stat = f"""SELECT * FROM catalog WHERE model_id = '{select_model_id}'"""
         model = pd_query(stat, POSTGRESQL_ENGINE)
-        stat = f"""SELECT * FROM catalog_stones WHERE model_id = '{model_id}'"""
+        stat = f"""SELECT * FROM catalog_stones WHERE model_id = '{select_model_id}'"""
         stones = pd_query(stat, POSTGRESQL_ENGINE)
         # if model is not empty get the first and the only element
         # also define selected value for ModelCategoryListForm and GenderListForm
@@ -107,7 +114,8 @@ def catalog_custom(request):
             modelcategorylistform = ModelCategoryListForm(initial={'model_category': model.model_category})
             genderlistform = GenderListForm(initial={'gender': model.gender})
         else:
-            model = None
+            model = dict()
+        new_model = {key:value for key, value in request.POST.dict().items() if key in model}
         return render(request, 'catalog_custom.html', { 'cataloglistform': cataloglistform,
                                                   'modelcategorylistform':modelcategorylistform,
                                                   'genderlistform': genderlistform,
@@ -120,12 +128,21 @@ def catalog_custom(request):
 
 
 def admin_catalog(request):
-    return redirect('admin/webpage/catalog/')
+    return redirect('juveladmin/webpage/catalog/')
 
 
 def catalog_list(request):
+    login_db(request)
     catalogs = Catalog.objects.all()
-    return render(request, 'catalog_list.html', {'catalogs': catalogs})
+    stat = """SELECT cs.model_id, cs.stone_full_name, 
+                                s.weight * cs.quantity::integer AS total_weight,
+                                s.weight, cs.quantity,
+                                CONCAT(cs.quantity::integer::text, ' ', cs.quantity_unit) AS quantity_unit
+                                FROM catalog AS c
+                                LEFT JOIN catalog_stones AS cs ON c.model_id = cs.model_id
+                                LEFT JOIN stones AS s on cs.stone_full_name = s.stone_full_name"""
+    catalog_stones = pd_query(stat, POSTGRESQL_ENGINE)
+    return render(request, 'catalog_list.html', {'catalogs': catalogs, 'catalog_stones': catalog_stones})
 
 from .forms import CatalogForm
 def catalog_create(request):
@@ -172,3 +189,7 @@ def delete_record(request, record):
         # else:
         # 	messages.success(request, "Record was not deleted...")
         return redirect('home')
+
+def test(request):
+    # login to db in any view that uses pandas
+    return render(request, 'home.html')
