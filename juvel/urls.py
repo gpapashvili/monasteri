@@ -22,6 +22,4 @@ urlpatterns = [
     path('', include('webpage.urls')),
 ]
 
-admin.site.site_title = "Juvel admin page"
-admin.site.site_header = "Juvel administration"
-admin.site.index_title = "Site administration"
+

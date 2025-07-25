@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete Catalog Entry</h2>
+    <p>დარწმუნებული ხარ რომ გინდა წაშალო {{ catalogstones.stone_full_name }} ქვა {{ catalogstones.model_id }} მოდელზე ?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <a href="{% url 'catalog' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

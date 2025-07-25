@@ -17,16 +17,10 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'catalog_list' %}">სრული კატალოგი</a>
+          <a class="nav-link" href="{% url 'catalog' %}">კატალოგი</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'admin:index' %}">ბაზა</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'catalog_custom' %}">catalog_custom</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'admin:logout' %}">test</a>
+          <a class="nav-link" href="{% url 'lot_list' %}">პროდუქცია</a>
         </li>
 
         <li class="nav-item dropdown">
@@ -38,6 +32,10 @@
             დამხმარე სიები
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'admin:webpage_stones_changelist' %}">ქვები</a></li>
+            <li><a class="dropdown-item" href="{% url 'admin:webpage_metals_changelist' %}">მეტალები</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'admin:webpage_masters_changelist' %}">ხელოსნები</a></li>
             <li><a class="dropdown-item" href="{% url 'admin:webpage_currencies_changelist' %}">ვალუტა</a></li>
             <li><a class="dropdown-item" href="{% url 'admin:webpage_genders_changelist' %}">სქესი</a></li>
             <li><a class="dropdown-item" href="{% url 'admin:webpage_modelcategories_changelist' %}">მოდელის კატეგორია</a></li>
@@ -45,8 +43,7 @@
             <li><a class="dropdown-item" href="{% url 'admin:webpage_stonequalities_changelist' %}">ქვის ხარისხი</a></li>
             <li><a class="dropdown-item" href="{% url 'admin:webpage_units_changelist' %}">ერთეულები</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'admin:webpage_stones_changelist' %}">ქვები</a></li>
-            <li><a class="dropdown-item" href="{% url 'admin:webpage_metals_changelist' %}">მეტალები</a></li>
+            <li><a class="dropdown-item" href="{% url 'admin:index' %}">ადმინისტრირება</a></li>
           </ul>
         </li>
 
@@ -81,54 +78,3 @@
     </div>
   </div>
 </nav>
-
-
-
-
-
-
-
-
-
-
-
-
-{#  <div class="container-fluid">#}
-{#    <a class="navbar-brand" href="{% url 'home' %}">Django CRM</a>#}
-{#    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"#}
-{#            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"#}
-{#            aria-expanded="false" aria-label="Toggle navigation">#}
-{#      <span class="navbar-toggler-icon"></span>#}
-{#    </button>#}
-{##}
-{#    <div class="collapse navbar-collapse" id="navbarSupportedContent">#}
-{#      <ul class="navbar-nav me-auto mb-2 mb-lg-0">#}
-{##}
-{#        <li class="nav-item">#}
-{#          <a class="nav-link" href="{% url 'admin:webpage_catalog_changelist' %}">admin_catalog</a>#}
-{#        </li>#}
-{##}
-{#        <li class="nav-item">#}
-{#          <a class="nav-link" href="{% url 'catalog_custom' %}">catalog_custom</a>#}
-{#        </li>#}
-{##}
-{#        <li class="nav-item">#}
-{#          <a class="nav-link" href="{% url 'catalog_list' %}">catalog</a>#}
-{#        </li>#}
-{##}
-{#        {% if user.is_authenticated %}#}
-{#        <li class="nav-item">#}
-{#          <a class="nav-link" href="{% url 'logout_user' %}">Logout</a>#}
-{#        </li>#}
-{##}
-{#        {% else %}#}
-{#        <li class="nav-item">#}
-{#          <a class="nav-link" href="{% url 'login_user' %}">Login</a>#}
-{#        </li>#}
-{#        {% endif %}#}
-{##}
-{#      </ul>#}
-{##}
-{#    </div>#}
-{#  </div>#}
-{#</nav>#}

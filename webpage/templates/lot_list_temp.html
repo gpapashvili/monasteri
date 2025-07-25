@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{#{% load static %}#}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h2>პარტიების სია</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>პარტიის N</th>
+                <th>თარიღი</th>
+                <th>მეტალი</th>
+                <th>მასტერი</th>
+                <th>კომენტარი</th>
+                <th>მოქმედება</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lot in lots %}
+            <tr>
+                <form method="post" class="lot-form">
+                    {% csrf_token %}
+                    <td>
+                        {{ lot.lot_id }}
+                        <input type="hidden" name="lot_id" value="{{ lot.lot_id }}">
+                    </td>
+                    <td>
+                        <input type="date" class="form-control" name="lot_date"
+                               value="{{ lot.lot_date|date:'Y-m-d' }}">
+                    </td>
+                    <td>
+                        <select class="form-select" name="metal_full_name">
+                            <option value="">---------</option>
+                            {% for metal in metals %}
+                                <option value="{{ metal.metal_full_name }}"
+                                    {% if metal.metal_full_name == lot.metal_full_name.metal_full_name %}selected{% endif %}>
+                                    {{ metal.metal_full_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" name="master_full_name">
+                            <option value="">---------</option>
+                            {% for master in masters %}
+                                <option value="{{ master.master_full_name }}"
+                                    {% if master.master_full_name == lot.master_full_name.master_full_name %}selected{% endif %}>
+                                    {{ master.master_full_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="note"
+                               value="{{ lot.note|default:'' }}">
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-primary btn-sm">შენახვა</button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

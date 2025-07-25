@@ -8,7 +8,7 @@
 
 from django.db import models
 from django.utils.timezone import now
-from datetime import datetime
+from django.db.models.functions import Concat
 
 
 #########Simplest  lookup tables############
@@ -17,80 +17,117 @@ from datetime import datetime
 ## they will be controlled using django admin
 
 class Units(models.Model):
-    label = models.CharField(primary_key=True, max_length=15)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'units'
         ordering = ['label']
+        verbose_name = 'ერთეული'
+        verbose_name_plural = 'ერთეულები'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
 
 
 class Currencies(models.Model):
-    label = models.CharField(primary_key=True, max_length=5)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'currencies'
         ordering = ['label']
+        verbose_name = 'ვალუტა'
+        verbose_name_plural = 'ვალუტა'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
 
 
 class StoneNames(models.Model):
-    label = models.CharField(primary_key=True, max_length=30)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'stone_names'
         ordering = ['label']
+        verbose_name = 'ქვის სახელი'
+        verbose_name_plural = 'ქვის სახელები'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
 
 
 class StoneQualities(models.Model):
-    label = models.CharField(primary_key=True, max_length=10)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'stone_qualities'
         ordering = ['label']
+        verbose_name = 'ქვის ხარისხი'
+        verbose_name_plural = 'ქვის ხარისხები'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
 
 
 class Genders(models.Model):
-    label = models.CharField(primary_key=True, max_length=10)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'genders'
         ordering = ['label']
+        verbose_name = 'სქესი'
+        verbose_name_plural = 'სქესი'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
 
 
 class ModelCategories(models.Model):
-    label = models.CharField(primary_key=True, max_length=20)
+    label = models.CharField(primary_key=True)
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'model_categories'
+        verbose_name = 'მოდელის კატეგორია'
+        verbose_name_plural = 'მოდელის კატეგორიები'
+        db_table_comment = 'lookup values'
 
     def __str__(self):
         return f"{self.label}"
+
+
+class Masters(models.Model):
+    personal_id = models.CharField(primary_key=True)
+    first_name = models.CharField()
+    second_name = models.CharField()
+    master_full_name =  models.GeneratedField(expression=Concat('first_name', " ",'second_name', " ",'personal_id'),
+                                              output_field=models.CharField(), db_persist=True, unique=True)
+    note = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'masters'
+        verbose_name = 'ხელოსანი'
+        verbose_name_plural = 'ხელოსნები'
+        db_table_comment = 'masters and other workers'
+
+    def __str__(self):
+        return f"{self.master_full_name}"
 
 
 #########Complicated  lookup tables that needs additional id############
@@ -99,27 +136,34 @@ class ModelCategories(models.Model):
 ## will be managed using django admin
 
 class Metals(models.Model):
-    metal_name = models.CharField(max_length=20)
-    sinji = models.IntegerField()
-    # metal_full_name = models.CharField(primary_key=True, max_length=25)
+    metal_name = models.CharField(null=False, blank=False)
+    sinji = models.IntegerField(null=False, blank=False)
+    # PostgreSQL currently implements only stored generated columns so db_persist=True
+    metal_full_name = models.GeneratedField(expression=Concat('metal_name', "-",'sinji'),
+                                            output_field=models.CharField(max_length=25), db_persist=True, unique=True)
     note = models.TextField(blank=True, null=True)
     django_id = models.AutoField(primary_key=True)
 
     class Meta:
         managed = False
         db_table = 'metals'
-        ordering = ['metal_name', 'sinji']
+        ordering = ['metal_full_name']
+        verbose_name = 'მეტალი'
+        verbose_name_plural = 'მეტალები'
+        db_table_comment = 'metals with sinjebi and their characteristics if any'
 
     def __str__(self):
-        return f"{self.metal_name}-{self.sinji}"
+        return f"{self.metal_full_name}"
 
 
 class Stones(models.Model):
     stone_name = models.ForeignKey(StoneNames, models.DO_NOTHING, db_column='stone_name')
-    size = models.CharField(max_length=10)
-    size_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='size_unit')
+    size = models.CharField()
+    size_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='size_unit', default='მილიმეტრი', related_name='size_unit')
     weight = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
-    weight_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='weight_unit', related_name='stones_weight_unit_set', blank=True, null=True)
+    weight_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='weight_unit', default='კარატი', related_name='weight_unit')
+    stone_full_name = models.GeneratedField(expression=Concat('stone_name', "-", 'size'),
+                                            output_field=models.CharField(), db_persist=True, unique=True)
     note = models.TextField(blank=True, null=True)
     django_id = models.AutoField(primary_key=True)
 
@@ -127,15 +171,18 @@ class Stones(models.Model):
         managed = False
         db_table = 'stones'
         ordering = ['stone_name', 'size']
+        verbose_name = 'ქვა'
+        verbose_name_plural = 'ქვები'
+        db_table_comment = 'stones and their characteristics'
+
 
     def __str__(self):
-        return f"{self.stone_name}-{str(self.size)}"
-
+        return f"{self.stone_full_name}"
 
 ######################functional tables#################
 ## those functional tables do not need modification in database
 ## do not need custom forms
-## will be managed using django admin
+## can be managed using django admin
 
 class Catalog(models.Model):
     def catalog_image_path(instance, filename):
@@ -147,77 +194,89 @@ class Catalog(models.Model):
         # Return the complete path
         return f'catalog/{filename}'
 
-    model_id = models.CharField(primary_key=True, max_length=30)
+    model_id = models.CharField(primary_key=True)
     creation_date = models.DateField(default=now)
     peaces = models.IntegerField(default=1)
-    model_name = models.CharField(max_length=30, blank=True, null=True)
+    model_name = models.CharField(blank=True, null=True)
     model_category = models.ForeignKey('ModelCategories', models.DO_NOTHING, db_column='model_category', blank=True, null=True)
     gender = models.ForeignKey('Genders', models.DO_NOTHING, db_column='gender', blank=True, null=True)
     image_location = models.ImageField(upload_to=catalog_image_path, null=True, blank=True)
-
     note = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'catalog'
         ordering = ['model_id']
+        verbose_name = 'კატალოგი'
+        verbose_name_plural = 'კატალოგი'
+        db_table_comment = 'catalog of products'
 
     def __str__(self):
         return f"{self.model_id}"
+
+
+class Lots(models.Model):
+    lot_id = models.AutoField(primary_key=True)
+    lot_date = models.DateField(default=now)
+    metal_full_name = models.ForeignKey('Metals', models.DO_NOTHING, db_column='metal_full_name', to_field='metal_full_name', blank=True, null=True)
+    master_full_name = models.ForeignKey('Masters', models.DO_NOTHING, db_column='master_full_name', to_field='master_full_name', blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'lots'
+        ordering = ['-lot_date', '-lot_id']
+        verbose_name = 'პარტია'
+        verbose_name_plural = 'პარტია'
+        db_table_comment = 'lots info'
+
+    def __str__(self):
+        return f"{self.lot_id} - {self.lot_date} - {self.master_full_name}"
 
 
 ######################Needs Custom Form#################
 ## those tables can not be managed from django admin
 ## do not need database modification as thay will not be managed from django admin
 ## need custom forms
-## can be deleted from here (models.py)
 
 class CatalogStones(models.Model):
     model_id = models.ForeignKey('Catalog', models.CASCADE, db_column='model_id')
-    stone_full_name = models.ForeignKey('Stones', models.DO_NOTHING, db_column='stone_full_name')
+    stone_full_name = models.ForeignKey('Stones', models.DO_NOTHING, db_column='stone_full_name', to_field='stone_full_name')
     quantity = models.DecimalField(max_digits=8, decimal_places=4)
-    quantity_unit = models.CharField(max_length=15, blank=True, null=True)
+    quantity_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='quantity_unit', blank=True, null=True)
     note = models.TextField(blank=True, null=True)
     django_id = models.AutoField(primary_key=True)
 
     class Meta:
         managed = False
         db_table = 'catalog_stones'
+        ordering = ['model_id', 'stone_full_name']
+        verbose_name = 'მოდელის ქვები'
+        verbose_name_plural = 'მოდელის ქვები'
+        db_table_comment = 'stones of models in catalog, only stones, but can be used for other if needed'
 
+    def __str__(self):
+        return f"{self.model_id}-{self.stone_full_name}"
+
+
+class LotModels(models.Model):
+    lot_id = models.ForeignKey('Lots', models.CASCADE, db_column='lot_id', to_field='lot_id')
+    model_id = models.ForeignKey('Catalog', models.DO_NOTHING, db_column='model_id', to_field='model_id')
+    production_timestamp = models.DateTimeField(blank=True, null=True)
+    weight = models.DecimalField(max_digits=8, decimal_places=4)
+    weight_unit = models.ForeignKey('Units', models.DO_NOTHING, db_column='weight_unit', default='გრამი')
+    note = models.TextField(blank=True, null=True)
+    django_id = models.AutoField(primary_key=True)
+
+    class Meta:
+        managed = False
+        db_table = 'lot_models'
+        ordering = ['-lot_id', 'model_id', '-production_timestamp']
+        verbose_name = 'პარტიის მოდელი'
+        verbose_name_plural = 'პარტიის მოდელები'
+        db_table_comment = 'models added to lot for production'
+
+    def __str__(self):
+        return f"{self.lot_id}-{self.model_id}-{self.production_timestamp}"
 
 ##########################not yet determined###########################
-
-class Lots(models.Model):
-    lot_id = models.AutoField(primary_key=True)
-    lot_date = models.DateField()
-    metal_full_name = models.ForeignKey('Metals', models.DO_NOTHING, db_column='metal_full_name')
-    note = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'lots'
-
-
-class ProductionModels(models.Model):
-    pk = models.CompositePrimaryKey('lot_id', 'model_id', 'production_timestamp')
-    lot = models.ForeignKey(Lots, models.DO_NOTHING)
-    model = models.ForeignKey(Catalog, models.DO_NOTHING)
-    production_timestamp = models.DateTimeField()
-    weight = models.DecimalField(max_digits=8, decimal_places=4)
-    weight_unit = models.CharField(max_length=15, blank=True, null=True)
-    note = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'production_models'
-
-
-#################testing
-
-class test_table(models.Model):
-    id = models.AutoField(primary_key=True)
-    image = models.ImageField(upload_to='static/')
-
-    class Meta:
-        managed = True
-        db_table = 'test_table'

@@ -7,9 +7,9 @@ def create_db_engine(_user, _passw, _db_server, _db_name, _db_ms = 'postgresql',
         _eng = sqla.create_engine(_url)
         with _eng.connect() as _conn:
             _results = _conn.execute(sqla.text(("SELECT 1"))).fetchall()
-        return _eng if _results else "Database SQL execution error"
+        return _eng if _results else "SQL-ის გაშვებისას დაფიქსირდა შეცდომა"
     except Exception as e:
-        return f"Database connection error: {e}"
+        return f"ბაზასთან დაკავშირებისას დაფიქსირდა შეცდომა: {e}"
 
 
 import pandas as pd
@@ -37,24 +37,24 @@ def crt_query(_stat, _eng):
 
 
 # not yes tested
-def insert_query(_schema, _table_name, _data, _eng):
+def insert_query(_table_name, _data, _eng):
     """Insert data query, _stat should be like "INSERT INTO table (col1, col2) VALUES (:col1, :col2)"
     data should be like [{"col1": val1, "col2": val2}, {"col1": val3, "col2": val4}] """
 
     # first check if columns from data are subset of columns from db
-    columns_from_db = set(pd_query(f"SELECT * FROM {_schema}.{_table_name} LIMIT 0").columns)
+    columns_from_db = set(pd.read_sql_query(sqla.text(f"SELECT * FROM {_table_name} LIMIT 0"), _eng).columns)
     columns_from_data = set(key for row in _data for key in row.keys())
     # raise Valueerror if not subset
     if not columns_from_data.issubset(columns_from_db):
         message = 'Mismatch in column names:\n'
         message += f'columns_from_db:\t{sorted(columns_from_db)}\n'
         message += f'columns_from_data:\t{sorted(columns_from_data)}'
-        raise ValueError(message)
+        return message
 
     # next create insert statement
     cols_str = ", ".join(_data[0].keys())
     placeholders = ", ".join(f":{column}" for column in _data[0].keys())
-    stat = f"""INSERT INTO {_schema}.{_table_name} ({cols_str}) VALUES ({placeholders})""".strip()
+    stat = f"""INSERT INTO {_table_name} ({cols_str}) VALUES ({placeholders})""".strip()
     # connect to db, execute and commit
     with _eng.connect() as _conn:
         _conn.execute(sqla.text(stat), _data)

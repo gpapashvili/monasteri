@@ -1,5 +1,5 @@
 from django import forms
-from .models import Catalog, Stones, ModelCategories, Genders
+from .models import Catalog, ModelCategories, Genders, CatalogStones, Lots
 
 
 class CatalogListForm(forms.Form):
@@ -30,6 +30,16 @@ class GenderListForm(forms.Form):
         empty_label="აირჩიე სქესი",
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='სქესი',
+        required=False,
+    )
+
+
+class LotListForm(forms.Form):
+    select_lot_id = forms.ModelChoiceField(
+        queryset=Lots.objects.all(),
+        empty_label="აირჩიე პარტია",
+        widget=forms.Select,
+        label='პარტია',
         required=False,
     )
 
@@ -66,4 +76,56 @@ class CatalogForm(forms.ModelForm):
             'gender': 'Gender',
             'image_location': 'Image',
             'note': 'Note'
+        }
+
+
+class CatalogStonesForm(forms.ModelForm):
+    class Meta:
+        model = CatalogStones
+        fields = [
+            'model_id',
+            'stone_full_name',
+            'quantity',
+            'quantity_unit',
+            'note',
+        ]
+        widgets = {
+            'model_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'stone_full_name': forms.Select(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity_unit': forms.Select(attrs={'class': 'form-control'}),
+            'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+        labels = {
+            'model_id': 'მოდელის ნომერი',
+            'stone_full_name': 'ქვის სახელი და ზომა',
+            'quantity': 'ქვების რაოდენობა მოდელში',
+            'quantity_unit': 'ერთეული (ცალი)',
+            'note': 'კომენტარი'
+        }
+
+
+class LotForm(forms.ModelForm):
+    class Meta:
+        model = Lots
+        fields = [
+            'lot_id',
+            'lot_date',
+            'metal_full_name',
+            'master_full_name',
+            'note'
+        ]
+        widgets = {
+            'lot_id': forms.NumberInput(attrs={'class': 'form-control', 'disabled': 'disabled'}),
+            'lot_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'metal_full_name': forms.Select(attrs={'class': 'form-control'}),
+            'master_full_name': forms.Select(attrs={'class': 'form-control'}),
+            'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+        labels = {
+            'lot_id': 'პარტიის N',
+            'lot_date': 'თარიღი',
+            'metal_full_name': 'მეტალი',
+            'master_full_name': 'მასტერი',
+            'note': 'კომენტარი'
         }
